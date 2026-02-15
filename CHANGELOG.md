@@ -18,6 +18,7 @@ VoiceSnap 2.0 使用 Go + Wails v3 + Svelte 从零重写，目标是更小体积
 - **录音音效反馈**：马林巴风格双音提示（开始升调、完成降调），可在设置中关闭
 - **Escape 取消录音**：录音中按 Esc 立即取消，比组合键更直觉
 - **剪贴板保护**：粘贴前保存旧剪贴板内容，粘贴后自动恢复
+- **识别历史**：自动保存最近 50 条识别结果，支持复制、单条删除、清除所有，可设置保留时长（7/30/90天/永久）
 - **麦克风设备选择**：下拉菜单列出所有输入设备，点击切换，选择自动保存
 - **中英双语界面**：自动跟随系统语言，托盘菜单同步本地化
 - **自定义快捷键**：支持 Ctrl / Alt / Shift / 功能键 / 字母键 / 空格等
@@ -32,6 +33,7 @@ VoiceSnap 2.0 使用 Go + Wails v3 + Svelte 从零重写，目标是更小体积
 | 文字粘贴 | Win32 剪贴板 + SendInput Ctrl+V，失败回退 Unicode SendInput |
 | 浮动指示器 | Win32 GDI+ Layered Window，WS_EX_NOACTIVATE + TOPMOST |
 | 音效合成 | Go 程序化生成 WAV (48kHz, 基频+谐波+指数衰减)，winmm.dll PlaySound |
+| 识别历史 | JSON 文件持久化，最多 50 条，按保留天数自动清理 |
 | 前端 | Svelte 5 + Vite 6 + TypeScript，~80 KB 产物 |
 | 配置 | JSON 格式，兼容 WPF 版 config.json |
 
@@ -45,6 +47,7 @@ VoiceSnap 2.0 使用 Go + Wails v3 + Svelte 从零重写，目标是更小体积
 | 录音音效 | 有（可关闭） | 无 |
 | Esc 取消 | 有 | 无 |
 | 剪贴板保护 | 有 | 无 |
+| 识别历史 | 有（50条） | 无 |
 | 麦克风切换 | 有 | 无 |
 | 多语言 UI | 中/英 | 中/英 |
 | 跨平台 | 计划中 | 仅 Windows |

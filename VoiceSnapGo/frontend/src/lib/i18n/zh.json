@@ -4,6 +4,7 @@
   },
   "nav": {
     "home": "首页",
+    "history": "历史",
     "about": "关于"
   },
   "status": {
@@ -62,6 +63,21 @@
     "isLatestVersion": "已是最新版本",
     "checkFailed": "检查失败",
     "copyright": "© {year} VoiceSnap · MIT License"
+  },
+  "history": {
+    "title": "识别历史",
+    "retention": "保留时长",
+    "days7": "7 天",
+    "days30": "30 天",
+    "days90": "90 天",
+    "forever": "永久",
+    "empty": "暂无历史记录",
+    "emptyDesc": "识别结果会自动保存在这里",
+    "copied": "已复制",
+    "clearAll": "清除所有",
+    "clearConfirm": "确定要清除所有历史记录吗？",
+    "today": "今天",
+    "yesterday": "昨天"
   },
   "onboarding": {
     "title": "首次设置",

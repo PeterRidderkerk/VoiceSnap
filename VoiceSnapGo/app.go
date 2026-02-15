@@ -9,6 +9,7 @@ import (
 	"voicesnap/internal/audio"
 	"voicesnap/internal/config"
 	"voicesnap/internal/engine"
+	"voicesnap/internal/history"
 	"voicesnap/internal/hotkey"
 	"voicesnap/internal/input"
 	"voicesnap/internal/logger"
@@ -36,6 +37,7 @@ type App struct {
 	eng      engine.Engine
 	hk       hotkey.Listener
 	paster   input.Paster
+	history  *history.Store
 
 	wailsApp       *application.App
 	settingsWindow *application.WebviewWindow
@@ -79,6 +81,9 @@ func RunApp() error {
 	// Initialize platform-specific paster
 	app.paster = input.NewPaster()
 
+	// Initialize history store
+	app.history = history.New()
+
 	// Create services for Wails bindings
 	appService := services.NewAppService(app.cfg, appVersion)
 	configService := services.NewConfigService(app.cfg)
@@ -86,6 +91,7 @@ func RunApp() error {
 	hotkeyService := services.NewHotkeyService(app.cfg)
 	updaterService := services.NewUpdaterService(appVersion)
 	audioService := services.NewAudioService(app.recorder, app.cfg)
+	historyService := services.NewHistoryService(app.history)
 
 	// Create Wails application
 	wailsApp := application.New(application.Options{
@@ -98,6 +104,7 @@ func RunApp() error {
 			application.NewService(hotkeyService),
 			application.NewService(updaterService),
 			application.NewService(audioService),
+			application.NewService(historyService),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),
@@ -338,6 +345,7 @@ func (a *App) stopRecordingLocked(cancel bool) {
 		}
 
 		logger.Info("Recognized: %s", text)
+		a.history.Add(text)
 
 		// Wait for hotkey to be fully released (max 500ms)
 		for i := 0; i < 50; i++ {
@@ -431,6 +439,7 @@ func (a *App) stopFreetalkLocked() {
 		}
 
 		logger.Info("Recognized (free talk): %s", text)
+		a.history.Add(text)
 
 		// Wait for hotkey to be fully released (max 500ms)
 		for i := 0; i < 50; i++ {

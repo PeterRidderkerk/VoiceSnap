@@ -2,10 +2,12 @@
   import { currentPage } from '../../lib/stores/app'
   import { t } from '../../lib/i18n'
   import GeneralPage from './GeneralPage.svelte'
+  import HistoryPage from './HistoryPage.svelte'
   import AboutPage from './AboutPage.svelte'
 
   const navItems = [
     { id: 'general', label: () => t('nav.home') },
+    { id: 'history', label: () => t('nav.history') },
     { id: 'about', label: () => t('nav.about') },
   ]
 
@@ -38,6 +40,11 @@
                 <path d="M2.5 7.5L8 3l5.5 4.5"/>
                 <path d="M4 6.5V13h3v-3.5h2V13h3V6.5"/>
               </svg>
+            {:else if item.id === 'history'}
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="8" cy="8" r="6"/>
+                <polyline points="8,4.5 8,8 10.5,9.5"/>
+              </svg>
             {:else if item.id === 'about'}
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
                 <circle cx="8" cy="8" r="6"/>
@@ -56,6 +63,8 @@
   <main class="content">
     {#if page === 'general'}
       <GeneralPage />
+    {:else if page === 'history'}
+      <HistoryPage />
     {:else if page === 'about'}
       <AboutPage />
     {/if}

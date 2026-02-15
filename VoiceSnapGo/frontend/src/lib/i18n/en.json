@@ -4,6 +4,7 @@
   },
   "nav": {
     "home": "Home",
+    "history": "History",
     "about": "About"
   },
   "status": {
@@ -62,6 +63,21 @@
     "isLatestVersion": "Up to date",
     "checkFailed": "Check failed",
     "copyright": "© {year} VoiceSnap · MIT License"
+  },
+  "history": {
+    "title": "Recognition History",
+    "retention": "Keep History",
+    "days7": "7 Days",
+    "days30": "30 Days",
+    "days90": "90 Days",
+    "forever": "Forever",
+    "empty": "No history yet",
+    "emptyDesc": "Recognition results will appear here",
+    "copied": "Copied",
+    "clearAll": "Clear All",
+    "clearConfirm": "Are you sure you want to clear all history?",
+    "today": "Today",
+    "yesterday": "Yesterday"
   },
   "onboarding": {
     "title": "First Time Setup",
