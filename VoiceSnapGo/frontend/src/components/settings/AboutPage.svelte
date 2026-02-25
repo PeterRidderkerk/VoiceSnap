@@ -2,7 +2,7 @@
   import { Call } from '@wailsio/runtime'
   import { t } from '../../lib/i18n'
 
-  let version = $state('2.0.0')
+  let version = $state('2.1.0')
   let updateStatus = $state('')
   let updateColor = $state('')
   let checking = $state(false)

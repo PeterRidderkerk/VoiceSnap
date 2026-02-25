@@ -7,7 +7,7 @@ info:
   description: "Offline voice to text tool"
   copyright: "(c) 2025, VoiceSnap"
   comments: "Press and hold hotkey to record, release to transcribe"
-  version: "2.0.0"
+  version: "2.1.0"
 
 dev_mode:
   root_path: .
