@@ -9,6 +9,7 @@
 
   let entries = $state<HistoryEntry[]>([])
   let retentionDays = $state(30)
+  let retentionLoaded = $state(false)
   let copiedTs = $state<number | null>(null)
   let showConfirm = $state(false)
   let showRetention = $state(false)
@@ -36,6 +37,7 @@
       const days: any = await Call.ByName('voicesnap/services.HistoryService.GetRetentionDays')
       retentionDays = (days !== null && days !== undefined) ? days : 30
     } catch {}
+    retentionLoaded = true
   }
 
   async function setRetention(days: number) {
@@ -110,6 +112,7 @@
     <div class="toolbar-left">
       <span class="toolbar-label">{t('history.retention')}</span>
       <div class="retention-selector">
+        {#if retentionLoaded}
         <button class="retention-btn" onclick={() => showRetention = !showRetention}>
           <span>{currentRetentionLabel()}</span>
           <svg class="chevron" class:open={showRetention} width="10" height="6" viewBox="0 0 10 6" fill="none">
@@ -133,6 +136,9 @@
               </button>
             {/each}
           </div>
+        {/if}
+        {:else}
+        <span class="retention-btn"><span>...</span></span>
         {/if}
       </div>
     </div>

@@ -14,6 +14,7 @@
   let autoHideVal = $state(true)
   let soundFeedbackVal = $state(true)
   let startAtLoginVal = $state(false)
+  let settingsLoaded = $state(false)
   let device = $state('Default')
   let status = $state('loading')
   let hwInfo = $state('')
@@ -59,6 +60,7 @@
       soundFeedback.set(sf)
       soundFeedbackVal = sf
     } catch {}
+    settingsLoaded = true
   }
   loadSettings()
 
@@ -263,6 +265,7 @@
   </div>
 
   <!-- Toggles -->
+  {#if settingsLoaded}
   <div class="section">
     <div class="setting-row">
       <div class="setting-info">
@@ -292,6 +295,7 @@
       <ToggleSwitch checked={startAtLoginVal} onchange={onStartAtLoginChange} />
     </div>
   </div>
+  {/if}
 </div>
 
 <style>

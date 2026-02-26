@@ -71,6 +71,13 @@
         engineStatus.set('need_model')
       }
     })
+
+    // Load actual hotkey name from backend (store default is generic "Ctrl")
+    Call.ByName('voicesnap/services.HotkeyService.GetHotkeyName').then((name: any) => {
+      if (name) {
+        hotkeyName.set(name)
+      }
+    })
   })
 </script>
 
