@@ -29,12 +29,12 @@ const (
 
 func init() {
 	once.Do(func() {
-		// Ascending "deng-deng ↑" — matches Typeless record-start profile
-		startWAV = genMalletPair(392.0, 523.0, 0.13, 0.28, 0.015)
-		// Descending "deng-deng ↓" — matches Typeless record-end profile
-		doneWAV = genMalletPair(392.0, 294.0, 0.13, 0.28, 0.015)
+		// Ascending "deng-deng ↑"
+		startWAV = genMalletPair(330.0, 440.0, 0.13, 0.28, 0.015)
+		// Descending "deng-deng ↓"
+		doneWAV = genMalletPair(330.0, 247.0, 0.13, 0.28, 0.015)
 		// Cancel: single low soft tap
-		cancelWAV = genMalletSingle(294.0, 0.20)
+		cancelWAV = genMalletSingle(247.0, 0.20)
 	})
 }
 
@@ -109,12 +109,12 @@ func genMalletSingle(freq, dur float64) []byte {
 }
 
 // malletOsc produces a marimba-like oscillator: fundamental + 2nd harmonic + 3rd harmonic.
-// Volume is low (~14% of full scale, matching Typeless -17dB).
+// Volume is low (~12% of full scale).
 func malletOsc(freq, t, env float64) float64 {
 	fundamental := math.Sin(2 * math.Pi * freq * t)
 	harmonic2 := math.Sin(2*math.Pi*freq*2*t) * 0.15
 	harmonic3 := math.Sin(2*math.Pi*freq*3*t) * 0.05
-	return (fundamental + harmonic2 + harmonic3) * env * 0.135
+	return (fundamental + harmonic2 + harmonic3) * env * 0.10
 }
 
 // malletEnvelope: 3ms attack, then exponential decay.
