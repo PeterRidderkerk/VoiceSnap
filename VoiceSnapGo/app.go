@@ -144,7 +144,7 @@ func RunApp() error {
 		app.settingsWindow.Hide()
 	})
 
-	// Create native overlay indicator (Win32 layered window, per-pixel alpha)
+	// Create overlay indicator (native Win32 on Windows, native AppKit on macOS)
 	app.indicator = overlay.New()
 	app.indicator.OnDragged(func(x, y int) {
 		app.cfg.IndicatorX = x
@@ -606,12 +606,15 @@ func (a *App) positionIndicatorAt(x, y int) {
 		a.indicator.SetPosition(x, y)
 		return
 	}
+	// Try Screen.GetPrimary(); on macOS this may return nil during early startup.
+	// The darwin overlay has its own autoPosition fallback in Show().
 	screen := a.wailsApp.Screen.GetPrimary()
 	if screen == nil {
 		return
 	}
-	cx := screen.Bounds.X + (screen.Bounds.Width-170)/2
-	cy := screen.Bounds.Y + screen.Bounds.Height - 48 - 100
+	wa := screen.WorkArea
+	cx := wa.X + (wa.Width-170)/2
+	cy := wa.Y + wa.Height - 48 - 100
 	a.indicator.SetPosition(cx, cy)
 }
 

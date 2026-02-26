@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { Events } from '@wailsio/runtime'
+  import { Events, Call } from '@wailsio/runtime'
   import FloatingIndicator from './components/indicator/FloatingIndicator.svelte'
   import SettingsWindow from './components/settings/SettingsWindow.svelte'
   import OnboardingView from './components/onboarding/OnboardingView.svelte'
@@ -63,6 +63,13 @@
 
     window.addEventListener('hashchange', () => {
       isIndicatorRoute = window.location.hash === '#/indicator'
+    })
+
+    // Query engine status on mount (events emitted before frontend load are lost)
+    Call.ByName('voicesnap/services.EngineService.ModelExists').then((exists: any) => {
+      if (!exists) {
+        engineStatus.set('need_model')
+      }
     })
   })
 </script>

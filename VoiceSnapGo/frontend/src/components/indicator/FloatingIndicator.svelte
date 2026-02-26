@@ -123,13 +123,11 @@
 <style>
   /* Native overlay replaced this component — no global overrides */
 
-  /* Capsule fills entire window */
+  /* Capsule fills entire window — window IS the capsule */
   .capsule {
-    width: 170px;
-    height: 48px;
-    border-radius: 24px;
-    background: rgba(28, 28, 30, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.125);
+    width: 100%;
+    height: 100%;
+    background: rgb(28, 28, 30);
     display: flex;
     align-items: center;
     justify-content: center;

@@ -9,7 +9,8 @@ import (
 
 // EngineService provides engine status and model management to the frontend.
 type EngineService struct {
-	app *application.App
+	app          *application.App
+	initCallback func()
 }
 
 func NewEngineService() *EngineService {
@@ -27,7 +28,7 @@ func (s *EngineService) DownloadModel(primaryURL, fallbackURL string) error {
 	// Go up one level from sensevoice dir
 	modelsDir = modelsDir[:len(modelsDir)-len("/sensevoice")]
 
-	return model.Download(primaryURL, fallbackURL, modelsDir, func(percent float64, downloaded, total int64) {
+	err := model.Download(primaryURL, fallbackURL, modelsDir, func(percent float64, downloaded, total int64) {
 		if s.app != nil {
 			s.app.Event.Emit("model:download-progress", map[string]interface{}{
 				"percent":    percent,
@@ -36,6 +37,19 @@ func (s *EngineService) DownloadModel(primaryURL, fallbackURL string) error {
 			})
 		}
 	})
+	if err != nil {
+		return err
+	}
+
+	if s.initCallback != nil {
+		go s.initCallback()
+	}
+	return nil
+}
+
+// SetInitCallback sets the callback to re-initialize the engine after model download.
+func (s *EngineService) SetInitCallback(cb func()) {
+	s.initCallback = cb
 }
 
 // SetApp sets the Wails app reference for event emission.

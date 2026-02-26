@@ -3,19 +3,20 @@
 package input
 
 /*
+#cgo CFLAGS: -x objective-c
 #cgo LDFLAGS: -framework AppKit -framework CoreGraphics -framework Carbon
 #include <AppKit/AppKit.h>
 #include <CoreGraphics/CoreGraphics.h>
 #include <Carbon/Carbon.h>
 
-void setClipboardText(const char* text) {
+static void setClipboardText(const char* text) {
     NSPasteboard* pb = [NSPasteboard generalPasteboard];
     [pb clearContents];
     NSString* str = [NSString stringWithUTF8String:text];
     [pb setString:str forType:NSPasteboardTypeString];
 }
 
-void simulateCmdV() {
+static void simulateCmdV() {
     CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
 
     // Cmd down + V down
@@ -33,7 +34,7 @@ void simulateCmdV() {
     CFRelease(source);
 }
 
-void typeUnicodeChar(unsigned int codepoint) {
+static void typeUnicodeChar(unsigned int codepoint) {
     CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
     UniChar chars[2];
     int len = 0;

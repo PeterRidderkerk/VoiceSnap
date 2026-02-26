@@ -3,19 +3,103 @@
 package hotkey
 
 /*
-#cgo LDFLAGS: -framework CoreGraphics -framework Carbon
-#include <CoreGraphics/CoreGraphics.h>
-#include <Carbon/Carbon.h>
+#cgo CFLAGS: -x objective-c
+#cgo LDFLAGS: -framework Cocoa -framework ApplicationServices
+#import <Cocoa/Cocoa.h>
+#include <ApplicationServices/ApplicationServices.h>
+#include <pthread.h>
 
-int isKeyDown(int keyCode) {
-    CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
-    if (source == NULL) return 0;
-    bool down = CGEventSourceKeyState(source, (CGKeyCode)keyCode);
-    CFRelease(source);
-    return down ? 1 : 0;
+static volatile int g_keysDown[128];
+static CFMachPortRef g_eventTap = NULL;
+
+// CGEventTap callback — runs on dedicated thread
+static CGEventRef tapCallback(CGEventTapProxy proxy, CGEventType type,
+                              CGEventRef event, void* refcon) {
+	(void)proxy; (void)refcon;
+
+	// macOS auto-disables event taps that are slow. Re-enable immediately.
+	if (type == kCGEventTapDisabledByTimeout || type == kCGEventTapDisabledByUserInput) {
+		if (g_eventTap) CGEventTapEnable(g_eventTap, true);
+		return event;
+	}
+
+	int keyCode = (int)CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
+	if (keyCode < 0 || keyCode >= 128) return event;
+
+	if (type == kCGEventKeyDown) {
+		g_keysDown[keyCode] = 1;
+	} else if (type == kCGEventKeyUp) {
+		g_keysDown[keyCode] = 0;
+	} else if (type == kCGEventFlagsChanged) {
+		CGEventFlags flags = CGEventGetFlags(event);
+		int down = 0;
+		switch (keyCode) {
+		case 0x3B: case 0x3E: down = (flags & kCGEventFlagMaskControl)   ? 1 : 0; break;
+		case 0x38: case 0x3C: down = (flags & kCGEventFlagMaskShift)     ? 1 : 0; break;
+		case 0x3A: case 0x3D: down = (flags & kCGEventFlagMaskAlternate) ? 1 : 0; break;
+		case 0x37: case 0x36: down = (flags & kCGEventFlagMaskCommand)   ? 1 : 0; break;
+		case 0x39:            down = (flags & kCGEventFlagMaskAlphaShift) ? 1 : 0; break;
+		}
+		g_keysDown[keyCode] = down;
+	}
+
+	return event;
+}
+
+// Dedicated thread for the CGEventTap run loop
+static void* tapThreadFunc(void* arg) {
+	(void)arg;
+
+	CGEventMask mask = (1 << kCGEventKeyDown) | (1 << kCGEventKeyUp) | (1 << kCGEventFlagsChanged);
+	g_eventTap = CGEventTapCreate(
+		kCGHIDEventTap,
+		kCGHeadInsertEventTap,
+		kCGEventTapOptionListenOnly,
+		mask,
+		tapCallback,
+		NULL
+	);
+
+	if (!g_eventTap) {
+		NSLog(@"[hotkey] CGEventTapCreate failed — Accessibility permission not granted?");
+		return NULL;
+	}
+
+	CFRunLoopSourceRef source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, g_eventTap, 0);
+	CFRunLoopAddSource(CFRunLoopGetCurrent(), source, kCFRunLoopCommonModes);
+	CGEventTapEnable(g_eventTap, true);
+
+	NSLog(@"[hotkey] CGEventTap started (AXTrusted=%d)", AXIsProcessTrusted());
+
+	CFRunLoopRun(); // blocks forever, processing events
+
+	CFRelease(source);
+	return NULL;
+}
+
+static int ensureAccessibility(void) {
+	NSDictionary* opts = @{(__bridge NSString*)kAXTrustedCheckOptionPrompt: @YES};
+	return AXIsProcessTrustedWithOptions((__bridge CFDictionaryRef)opts) ? 1 : 0;
+}
+
+static void startKeyMonitor(void) {
+	static int started = 0;
+	if (started) return;
+	started = 1;
+
+	pthread_t thread;
+	pthread_create(&thread, NULL, tapThreadFunc, NULL);
+	pthread_detach(thread);
+}
+
+static int isKeyDown(int keyCode) {
+	if (keyCode >= 0 && keyCode < 128) return g_keysDown[keyCode];
+	return 0;
 }
 */
 import "C"
+
+import "voicesnap/internal/logger"
 
 // macOS key code mapping from VK (Windows-style) to macOS CGKeyCode.
 var vkToMac = map[int]int{
@@ -40,13 +124,19 @@ var vkToMac = map[int]int{
 type darwinListener struct{}
 
 func newPlatformListener() Listener {
+	trusted := C.ensureAccessibility()
+	if trusted == 0 {
+		logger.Info("Accessibility permission not granted — hotkey won't work until granted")
+	} else {
+		logger.Info("Accessibility permission granted")
+	}
+	C.startKeyMonitor()
 	return &darwinListener{}
 }
 
 func (l *darwinListener) IsKeyDown(vk int) bool {
 	macKey, ok := vkToMac[vk]
 	if !ok {
-		// Try direct mapping for A-Z (0x41-0x5A)
 		if vk >= 0x41 && vk <= 0x5A {
 			macKey = vkToMacAlpha(vk)
 		} else {
@@ -57,7 +147,6 @@ func (l *darwinListener) IsKeyDown(vk int) bool {
 }
 
 func (l *darwinListener) IsAnyOtherKeyPressed(excludeVK int) bool {
-	// Check common modifier keys
 	modifiers := []int{0x11, 0xA2, 0xA3, 0x12, 0xA4, 0xA5, 0x10, 0xA0, 0xA1}
 	for _, k := range modifiers {
 		if k == excludeVK {
@@ -67,7 +156,6 @@ func (l *darwinListener) IsAnyOtherKeyPressed(excludeVK int) bool {
 			return true
 		}
 	}
-	// Check A-Z
 	for vk := 0x41; vk <= 0x5A; vk++ {
 		if vk == excludeVK {
 			continue
@@ -79,36 +167,15 @@ func (l *darwinListener) IsAnyOtherKeyPressed(excludeVK int) bool {
 	return false
 }
 
-// vkToMacAlpha converts Windows A-Z VK codes to macOS key codes.
 func vkToMacAlpha(vk int) int {
-	// macOS keycode layout (QWERTY)
 	alphaMap := map[int]int{
-		0x41: 0x00, // A
-		0x42: 0x0B, // B
-		0x43: 0x08, // C
-		0x44: 0x02, // D
-		0x45: 0x0E, // E
-		0x46: 0x03, // F
-		0x47: 0x05, // G
-		0x48: 0x04, // H
-		0x49: 0x22, // I
-		0x4A: 0x26, // J
-		0x4B: 0x28, // K
-		0x4C: 0x25, // L
-		0x4D: 0x2E, // M
-		0x4E: 0x2D, // N
-		0x4F: 0x1F, // O
-		0x50: 0x23, // P
-		0x51: 0x0C, // Q
-		0x52: 0x0F, // R
-		0x53: 0x01, // S
-		0x54: 0x11, // T
-		0x55: 0x20, // U
-		0x56: 0x09, // V
-		0x57: 0x0D, // W
-		0x58: 0x07, // X
-		0x59: 0x10, // Y
-		0x5A: 0x06, // Z
+		0x41: 0x00, 0x42: 0x0B, 0x43: 0x08, 0x44: 0x02,
+		0x45: 0x0E, 0x46: 0x03, 0x47: 0x05, 0x48: 0x04,
+		0x49: 0x22, 0x4A: 0x26, 0x4B: 0x28, 0x4C: 0x25,
+		0x4D: 0x2E, 0x4E: 0x2D, 0x4F: 0x1F, 0x50: 0x23,
+		0x51: 0x0C, 0x52: 0x0F, 0x53: 0x01, 0x54: 0x11,
+		0x55: 0x20, 0x56: 0x09, 0x57: 0x0D, 0x58: 0x07,
+		0x59: 0x10, 0x5A: 0x06,
 	}
 	if code, ok := alphaMap[vk]; ok {
 		return code
