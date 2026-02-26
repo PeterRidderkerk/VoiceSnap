@@ -1,5 +1,23 @@
 # Changelog
 
+## v2.2.0 (2026-02-26)
+
+### 新功能
+
+- **macOS 支持** — 跨平台正式支持 macOS，与 Windows 功能对齐
+  - 原生 AppKit + CoreGraphics 浮动指示器（胶囊样式，与 Windows 一致）
+  - NSEvent 全局监听 + CGEventSource 修饰键轮询实现全局热键
+  - CGEvent 模拟按键实现文字粘贴
+  - 兼容 macOS 26，首次启动引导授予辅助功能权限
+- **关于页添加 GitHub 链接** — 点击可直接跳转项目仓库
+
+### 改进
+
+- 移除旧版 C# 项目（VoiceSnap.Engine、VoiceSnapWPF），仓库仅保留 Go 版本
+- README 更新为跨平台文档
+
+---
+
 ## v2.1.0 (2026-02-26)
 
 ### Bug 修复
@@ -75,7 +93,7 @@ VoiceSnap 2.0 使用 Go + Wails v3 + Svelte 从零重写，目标是更小体积
 | 中英混合优化 | 有（自动加空格+大写） | 无 |
 | 指示器拖拽 | 有（位置记忆） | 无 |
 | 多语言 UI | 中/英 | 中/英 |
-| 跨平台 | 计划中 | 仅 Windows |
+| 跨平台 | Windows + macOS | 仅 Windows |
 
 ---
 
