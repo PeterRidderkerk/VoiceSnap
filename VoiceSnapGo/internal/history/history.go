@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"sync"
 	"time"
+	"unicode/utf8"
 	"voicesnap/internal/logger"
 )
 
@@ -42,7 +43,12 @@ func New() *Store {
 }
 
 // Add inserts a new entry at the top and persists to disk.
+// Single-character results (e.g. "." "。") are noise and skipped.
 func (s *Store) Add(text string) {
+	if utf8.RuneCountInString(text) <= 1 {
+		return
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
