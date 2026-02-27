@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"runtime"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -124,14 +125,21 @@ func RunApp() error {
 
 	app.wailsApp = wailsApp
 
-	// Create settings window (visible on startup, close → hide to tray)
+	// Create settings window
+	// First launch: show window; subsequent launches: start hidden (tray only)
+	startHidden := cfg.FirstLaunchDone
+	if !cfg.FirstLaunchDone {
+		cfg.FirstLaunchDone = true
+		config.Save(cfg)
+	}
+
 	app.settingsWindow = wailsApp.Window.NewWithOptions(application.WebviewWindowOptions{
 		Name:             "settings",
 		Title:            "VoiceSnap",
 		Width:            820,
 		Height:           580,
 		URL:              "/",
-		Hidden:           false,
+		Hidden:           startHidden,
 		BackgroundColour: application.NewRGB(242, 242, 247), // #F2F2F7 Apple grouped bg
 		Windows: application.WindowsWindow{
 			Theme: application.SystemDefault,
@@ -154,7 +162,14 @@ func RunApp() error {
 
 	// Create system tray
 	tray := wailsApp.SystemTray.New()
-	tray.SetTemplateIcon(trayIcon)
+	if runtime.GOOS == "darwin" {
+		// macOS: template icon (single-color, adapts to dark/light mode)
+		tray.SetTemplateIcon(trayIconMac)
+	} else {
+		// Windows: full-color icon + tooltip
+		tray.SetIcon(trayIconWin)
+		tray.SetTooltip("VoiceSnap")
+	}
 
 	showLabel, exitLabel := "Show Settings", "Exit"
 	if isChinese() {

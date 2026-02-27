@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
-	"unicode/utf8"
+	"unicode"
 	"voicesnap/internal/logger"
 )
 
@@ -42,10 +43,34 @@ func New() *Store {
 	return s
 }
 
+// isTooShort returns true if text is noise (single word/character with optional punctuation).
+// Examples: ".", "The.", "Okay.", "嗯。", "He." are all too short.
+func isTooShort(text string) bool {
+	// Strip all punctuation and whitespace, count remaining words
+	cleaned := strings.Map(func(r rune) rune {
+		if unicode.IsPunct(r) || unicode.IsSpace(r) || unicode.IsSymbol(r) {
+			return -1
+		}
+		return r
+	}, text)
+	if len(cleaned) == 0 {
+		return true
+	}
+	// Count space-separated words in the stripped-punctuation version
+	// For CJK: count runes; for Latin: single word = too short
+	words := strings.Fields(strings.Map(func(r rune) rune {
+		if unicode.IsPunct(r) || unicode.IsSymbol(r) {
+			return ' '
+		}
+		return r
+	}, text))
+	return len(words) <= 1
+}
+
 // Add inserts a new entry at the top and persists to disk.
-// Single-character results (e.g. "." "。") are noise and skipped.
+// Single-word results (e.g. ".", "The.", "Okay.") are noise and skipped.
 func (s *Store) Add(text string) {
-	if utf8.RuneCountInString(text) <= 1 {
+	if isTooShort(text) {
 		return
 	}
 

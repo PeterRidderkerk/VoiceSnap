@@ -17,6 +17,7 @@ type Config struct {
 	IndicatorY              int    `json:"IndicatorY,omitempty"`
 	ModelDownloadUrl        string `json:"ModelDownloadUrl"`
 	FallbackModelDownloadUrl string `json:"FallbackModelDownloadUrl"`
+	FirstLaunchDone         bool   `json:"FirstLaunchDone,omitempty"`
 }
 
 // Default returns a default configuration.

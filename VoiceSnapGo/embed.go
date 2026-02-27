@@ -14,4 +14,7 @@ var assets, _ = fs.Sub(embeddedAssets, "frontend/dist")
 var appIcon []byte
 
 //go:embed build/darwin/tray_icon.png
-var trayIcon []byte
+var trayIconMac []byte
+
+//go:embed build/windows/icon.ico
+var trayIconWin []byte
