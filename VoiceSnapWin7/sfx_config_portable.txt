@@ -1,0 +1,8 @@
+;!@Install@!UTF-8!
+Title="VoiceSnap"
+BeginPrompt="Extract and run VoiceSnap?"
+InstallPath="%%S\\VoiceSnap"
+RunProgram="voicesnap_win7.exe"
+GUIMode="1"
+OverwriteMode="2"
+;!@InstallEnd@!

@@ -1,0 +1,7 @@
+;!@Install@!UTF-8!
+Title="VoiceSnap"
+BeginPrompt="Do you want to install VoiceSnap?"
+InstallPath="%LOCALAPPDATA%\\VoiceSnap"
+RunProgram="voicesnap_win7.exe"
+GUIMode="1"
+;!@InstallEnd@!

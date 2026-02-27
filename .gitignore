@@ -19,6 +19,8 @@
 !VoiceSnapWPF/**
 !VoiceSnapGo/
 !VoiceSnapGo/**
+!VoiceSnapWin7/
+!VoiceSnapWin7/**
 
 # 4. 在允许的目录中，重新忽略不需要的产物
 **/bin/
@@ -46,3 +48,8 @@ VoiceSnapGo/history.json
 **/.DS_Store
 **/.task/
 **/build/release/
+# Win7 SFX build artifacts
+**/*.zip
+**/*.7z
+**/*.sfx
+**/install.bat
