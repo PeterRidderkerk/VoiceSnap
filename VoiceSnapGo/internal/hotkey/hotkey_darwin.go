@@ -69,27 +69,38 @@ import "voicesnap/internal/logger"
 
 // macOS modifier flag masks for CGEventSourceFlagsState polling.
 const (
+	// Independent masks (either side)
 	maskControl  = 0x40000  // kCGEventFlagMaskControl
 	maskShift    = 0x20000  // kCGEventFlagMaskShift
 	maskOption   = 0x80000  // kCGEventFlagMaskAlternate
 	maskCommand  = 0x100000 // kCGEventFlagMaskCommand
 	maskCapsLock = 0x10000  // kCGEventFlagMaskAlphaShift
+
+	// Device-dependent masks (left/right specific)
+	maskLCtrl   = 0x00000001 // NX_DEVICELCTLKEYMASK
+	maskRCtrl   = 0x00002000 // NX_DEVICERCTLKEYMASK
+	maskLShift  = 0x00000002 // NX_DEVICELSHIFTKEYMASK
+	maskRShift  = 0x00000004 // NX_DEVICERSHIFTKEYMASK
+	maskLCmd    = 0x00000008 // NX_DEVICELCMDKEYMASK
+	maskRCmd    = 0x00000010 // NX_DEVICERCMDKEYMASK
+	maskLOption = 0x00000020 // NX_DEVICELALTKEYMASK
+	maskROption = 0x00000040 // NX_DEVICERALTKEYMASK
 )
 
 // Modifier VK codes that use flag polling instead of key state array.
 var vkToFlagMask = map[int]C.ulonglong{
-	0x11: maskControl, // Ctrl
-	0xA2: maskControl, // L-Ctrl
-	0xA3: maskControl, // R-Ctrl
-	0x12: maskOption,  // Alt
-	0xA4: maskOption,  // L-Alt
-	0xA5: maskOption,  // R-Alt
-	0x10: maskShift,   // Shift
-	0xA0: maskShift,   // L-Shift
-	0xA1: maskShift,   // R-Shift
+	0x11: maskControl,  // Ctrl (either)
+	0xA2: maskLCtrl,    // L-Ctrl
+	0xA3: maskRCtrl,    // R-Ctrl
+	0x12: maskOption,   // Alt (either)
+	0xA4: maskLOption,  // L-Alt
+	0xA5: maskROption,  // R-Alt
+	0x10: maskShift,    // Shift (either)
+	0xA0: maskLShift,   // L-Shift
+	0xA1: maskRShift,   // R-Shift
 	0x14: maskCapsLock, // Caps Lock
-	0x5B: maskCommand, // L-Cmd
-	0x5C: maskCommand, // R-Cmd
+	0x5B: maskLCmd,     // L-Cmd
+	0x5C: maskRCmd,     // R-Cmd
 }
 
 // macOS key code mapping for non-modifier keys.

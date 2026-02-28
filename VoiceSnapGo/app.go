@@ -102,10 +102,19 @@ func RunApp() error {
 	audioService := services.NewAudioService(app.recorder, app.cfg)
 	historyService := services.NewHistoryService(app.history)
 
+	// macOS: first launch shows dock icon (Regular); subsequent launches hide it (Accessory)
+	macActivationPolicy := application.ActivationPolicyAccessory
+	if !cfg.FirstLaunchDone {
+		macActivationPolicy = application.ActivationPolicyRegular
+	}
+
 	// Create Wails application
 	wailsApp := application.New(application.Options{
 		Name: appName,
 		Icon: appIcon,
+		Mac: application.MacOptions{
+			ActivationPolicy: macActivationPolicy,
+		},
 		Services: []application.Service{
 			application.NewService(appService),
 			application.NewService(configService),
@@ -150,6 +159,7 @@ func RunApp() error {
 	app.settingsWindow.RegisterHook(events.Common.WindowClosing, func(e *application.WindowEvent) {
 		e.Cancel()
 		app.settingsWindow.Hide()
+		hideDockIcon()
 	})
 
 	// Create overlay indicator (native Win32 on Windows, native AppKit on macOS)
@@ -634,6 +644,7 @@ func (a *App) positionIndicatorAt(x, y int) {
 
 func (a *App) showSettings() {
 	if a.settingsWindow != nil {
+		showDockIcon()
 		a.settingsWindow.Show()
 		a.settingsWindow.Focus()
 	}
@@ -643,7 +654,9 @@ func (a *App) toggleSettings() {
 	if a.settingsWindow != nil {
 		if a.settingsWindow.IsVisible() {
 			a.settingsWindow.Hide()
+			hideDockIcon()
 		} else {
+			showDockIcon()
 			a.settingsWindow.Show()
 			a.settingsWindow.Focus()
 		}
