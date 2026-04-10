@@ -18,6 +18,7 @@
     "noContent": "No content recognized",
     "error": "Recognition error",
     "engineNotReady": "Engine not ready",
+    "browserPreview": "Desktop app only (browser preview)",
     "initializing": "Initializing..."
   },
   "indicator": {

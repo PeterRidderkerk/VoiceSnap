@@ -6,6 +6,7 @@
   import OnboardingView from './components/onboarding/OnboardingView.svelte'
   import UpdateDialog from './components/update/UpdateDialog.svelte'
   import { engineStatus } from './lib/stores/app'
+  import { isWailsWebView } from './lib/wailsEnv'
   import { indicatorVisible, indicatorStatus, indicatorVolume, hotkeyName } from './lib/stores/indicator'
   import { updateAvailable, type UpdateInfo } from './lib/stores/update'
   import { deviceName, engineHardwareInfo } from './lib/stores/app'
@@ -14,6 +15,11 @@
   let showUpdateDialog = $state(false)
 
   onMount(() => {
+    if (!isWailsWebView()) {
+      engineStatus.set('browser_preview')
+      return
+    }
+
     Events.On('indicator:show', (ev: any) => {
       indicatorVisible.set(true)
       if (ev?.data?.status) {

@@ -217,11 +217,13 @@
       <div class="setting-info">
         <span class="setting-label">{t('about.engineMode')}</span>
         <span class="setting-value">
-          <span class="status-dot" class:green={status === 'ready'} class:orange={status === 'loading'} class:red={status === 'error'}></span>
+          <span class="status-dot" class:green={status === 'ready'} class:orange={status === 'loading' || status === 'browser_preview'} class:red={status === 'error'}></span>
           {#if status === 'ready'}
             {hwInfo}
           {:else if status === 'loading'}
             {t('status.loading')}
+          {:else if status === 'browser_preview'}
+            {t('status.browserPreview')}
           {:else}
             {t('status.engineNotReady')}
           {/if}

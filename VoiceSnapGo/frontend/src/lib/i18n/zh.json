@@ -18,6 +18,7 @@
     "noContent": "无识别结果",
     "error": "识别出错",
     "engineNotReady": "引擎未就绪",
+    "browserPreview": "需桌面版（当前为浏览器预览）",
     "initializing": "初始化中..."
   },
   "indicator": {
