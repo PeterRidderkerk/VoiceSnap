@@ -1,0 +1,7 @@
+# VoiceSnap: Vite + Svelte frontend lives under VoiceSnapGo/frontend.
+# Without this, Netlify publishes the repo root and serves no index.html → "Page not found".
+
+[build]
+  base = "VoiceSnapGo/frontend"
+  command = "npm ci && npm run build"
+  publish = "VoiceSnapGo/frontend/dist"

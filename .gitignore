@@ -12,6 +12,7 @@
 !screenshot.png
 !.gitignore
 !CLAUDE.md
+!netlify.toml
 
 # 3. 允许特定的源码目录及其内容
 !VoiceSnap.Engine/
