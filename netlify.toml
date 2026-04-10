@@ -2,6 +2,8 @@
 # Without this, Netlify publishes the repo root and serves no index.html → "Page not found".
 
 [build]
+  # Paths below are relative to `base`; publish must be `dist`, not VoiceSnapGo/frontend/dist
+  # or Netlify resolves VoiceSnapGo/frontend/VoiceSnapGo/frontend/dist.
   base = "VoiceSnapGo/frontend"
   command = "npm ci && npm run build"
-  publish = "VoiceSnapGo/frontend/dist"
+  publish = "dist"
