@@ -1,3 +1,6 @@
+import { installBrowserWailsStub } from "./lib/browserWailsStub";
+installBrowserWailsStub();
+
 import App from "./App.svelte";
 import { mount } from "svelte";
 
